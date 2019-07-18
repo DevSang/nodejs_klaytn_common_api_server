@@ -1,0 +1,103 @@
+.Balance {
+  width: 800px;
+  margin: 50px auto;
+  padding: 50px 20px;
+  background-color: #a0c5d0;
+  border-radius: 6px;
+  text-align: center;
+  font-size: medium;
+}
+
+.Balance__wallet {
+  height: 40px;
+}
+
+.Balance__wallet_name {
+  width: 120px;
+  float: left;
+}
+
+.Balance__wallet_address {
+  width: 0;
+}
+
+input {
+  margin: 3px 5px 3px 10px;
+  width: 50%;
+  align-items: right;
+  height: 30px;
+  font-size: medium;
+  box-shadow: none;
+}
+input:focus { 
+  outline: none;
+  background: white; 
+}
+
+.Balance__tx {
+  text-align: left;
+  padding: 0 10px;
+}
+
+.Balance__tx_name {
+  margin-right: 34px;
+}
+.Balance__loading {
+  display: inline-block;
+  vertical-align: middle;
+  width: 40px;
+}
+
+.Balance__balance {
+  border: 2px solid #484542;
+  border-radius: 4px;
+  padding: 10px;
+  font-size: 32px;
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.Balance__button {
+  width: 200px;
+  height: 40px;
+  // border-radius: 50%;
+  margin: 33px 25% 0px 35%;
+  cursor: pointer;
+  background-color: #494542;
+  transition: opacity 500ms;
+  color: white;
+  outline: 0;
+  position: relative;
+
+
+  &:hover {
+    opacity: .5;
+  }
+
+  &:active {
+    opacity: .2;
+  }
+
+  &--setting {
+    &::before {
+      content: '';
+      position: absolute;
+      top: 0px;
+      left: 0px;
+      width: 40px;
+      height: 40px;
+      background-repeat: no-repeat;
+      background-size: contain;
+      background-image: url(/images/loading.gif);
+    }
+  }
+}
+
+.Balance__lastTransaction {
+  margin-top: 40px;
+  font-size: medium;
+}
+
+.Balance__lastTransactionLink {
+  color: #8a56d8;
+}
