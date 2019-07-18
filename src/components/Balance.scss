@@ -29,9 +29,9 @@ input {
   font-size: medium;
   box-shadow: none;
 }
-input:focus { 
+input:focus {
   outline: none;
-  background: white; 
+  background: white;
 }
 
 .Balance__tx {
@@ -69,13 +69,12 @@ input:focus {
   outline: 0;
   position: relative;
 
-
   &:hover {
-    opacity: .5;
+    opacity: 0.5;
   }
 
   &:active {
-    opacity: .2;
+    opacity: 0.2;
   }
 
   &--setting {

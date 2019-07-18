@@ -1,35 +1,32 @@
-const webpack = require('webpack')
-const path = require('path')
-const fs = require('fs')
+const webpack = require('webpack');
+const path = require('path');
+const fs = require('fs');
 
-const Dotenv = require('dotenv-webpack')
-const HtmlWebpackPlugin = require('html-webpack-plugin')
-const ExtractTextPlugin = require('extract-text-webpack-plugin')
-const UglifyJSPlugin = require('uglifyjs-webpack-plugin')
-const CopyWebpackPlugin = require('copy-webpack-plugin')
-const CleanWebpackPlugin = require('clean-webpack-plugin')
-const CompressionPlugin = require('compression-webpack-plugin')
+const Dotenv = require('dotenv-webpack');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
+const ExtractTextPlugin = require('extract-text-webpack-plugin');
+const UglifyJSPlugin = require('uglifyjs-webpack-plugin');
+const CopyWebpackPlugin = require('copy-webpack-plugin');
+const CleanWebpackPlugin = require('clean-webpack-plugin');
+const CompressionPlugin = require('compression-webpack-plugin');
 
-require('babel-polyfill')
+require('babel-polyfill');
 
-const extractCSS = new ExtractTextPlugin('bundle-[hash:6].css')
+const extractCSS = new ExtractTextPlugin('bundle-[hash:6].css');
 
-const ENV_DIR = './config/'
-let envPath
+const ENV_DIR = './config/';
+let envPath;
 switch (process.env.ENV) {
   case 'LOCAL':
   case 'REAL':
-    envPath = ENV_DIR + `${process.env.ENV}`.toLowerCase() + '.env'
-    break
+    envPath = `${ENV_DIR + `${process.env.ENV}`.toLowerCase()}.env`;
+    break;
 }
 
 module.exports = {
   devtool: 'source-map',
   mode: 'production',
-  entry: [
-    'babel-polyfill',
-    path.resolve(__dirname, 'src/index.js'),
-  ],
+  entry: ['babel-polyfill', path.resolve(__dirname, 'src/index.js')],
   output: {
     path: path.resolve(__dirname, 'dist'),
     publicPath: '/',
@@ -49,10 +46,10 @@ module.exports = {
           use: [
             {
               loader: 'css-loader',
-              options: { minimize: true },
+              // options: { minimize: true },
             },
           ],
-        })
+        }),
       },
       {
         test: /\.scss$/,
@@ -60,7 +57,7 @@ module.exports = {
           use: [
             {
               loader: 'css-loader',
-              options: { minimize: true },
+              // options: { minimize: true },
             },
             {
               loader: 'sass-loader',
@@ -88,7 +85,7 @@ module.exports = {
       new UglifyJSPlugin({
         sourceMap: true,
       }),
-    ]
+    ],
   },
   plugins: [
     new CleanWebpackPlugin(['dist']),
@@ -100,17 +97,21 @@ module.exports = {
     new webpack.IgnorePlugin(/^\.\/locale$/, /moment$/),
     new webpack.NoEmitOnErrorsPlugin(),
     new webpack.DefinePlugin({
-      DEPLOYED_ADDRESS: JSON.stringify(fs.readFileSync('deployedAddress', 'utf8').replace(/\n|\r/g, "")),
+      DEPLOYED_ADDRESS: JSON.stringify(
+        fs.readFileSync('deployedAddress', 'utf8').replace(/\n|\r/g, '')
+      ),
       DEPLOYED_ABI: fs.existsSync('deployedABI') && fs.readFileSync('deployedABI', 'utf8'),
     }),
     new CompressionPlugin(),
-    new CopyWebpackPlugin([{
-      from: 'static',
-      to: 'static',
-      toType: 'dir',
-    }]),
+    new CopyWebpackPlugin([
+      {
+        from: 'static',
+        to: 'static',
+        toType: 'dir',
+      },
+    ]),
     new Dotenv({
       path: envPath,
     }),
   ],
-}
+};

@@ -16,9 +16,10 @@ module.exports = (router) => {
 
   router.route('/').post(function (req, res) {
     try {
-      console.log(JSON.stringify(req.body));
-      const result = klaytn.requestToken(req.body.address, req.body.value);
-      console.log(result);
+      // console.log(JSON.stringify(req.body));
+      console.log('aaaa')
+      // const result = klaytn.requestToken(req.body.address, req.body.value);
+      // console.log(result);
     } catch (err) {
       console.log(err);
     }

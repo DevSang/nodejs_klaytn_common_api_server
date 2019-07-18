@@ -37,7 +37,10 @@ class Balance extends Component {
       fromAddres = this.walletInstance.address;
       contract = this.getContract();
       balance = await contract.methods.balanceOf(fromAddres).call();
+      const nf = new Intl.NumberFormat();
+      nf.format(balance)
       balance = cav.utils.fromPeb(balance, 'KLAY');
+      balance = nf.format(balance)
     } else {
       balance = 0;
       fromAddres = '';

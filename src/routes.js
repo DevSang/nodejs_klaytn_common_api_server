@@ -1,14 +1,14 @@
-import React from 'react'
-import { Router, Route, IndexRoute, browserHistory } from 'react-router'
+import React from 'react';
+import { Router, Route, IndexRoute, browserHistory } from 'react-router';
 
-import Count from 'components/Balance'
+import Balance from 'components/Balance';
 
-const renderRoutes = rootComponent => (
+const renderRoutes = (rootComponent) => (
   <Router history={browserHistory}>
     <Route component={rootComponent}>
-      <Route path="/" component={Count} />
+      <Route path="/" component={Balance} />
     </Route>
   </Router>
-)
+);
 
-export default renderRoutes
+export default renderRoutes;
