@@ -11,7 +11,7 @@
     "build:real": "ENV=REAL webpack --config webpack.prod.config.js",
     "local": "ENV=LOCAL node ./frontserver.js webpack.config.js --watch",
     "real": "ENV=REAL node ./frontserver.js webpack.prod.config.js --watch",
-    "start": "ENV=REAL node ./frontserver.js webpack.prod.config.js --watch",
+    "start": "ENV=REAL node ./frontserver.js webpack.prod.config.js",
     "start:local": "ENV=LOCAL node ./frontserver.js webpack.prod.config.js --watch",
     "dev": "nodemon ./build/main.js"
   },
