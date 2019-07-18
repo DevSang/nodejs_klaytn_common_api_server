@@ -1,5 +1,6 @@
 node_modules/
 build/*/*.js
 build/*.gypi
+build/*.js
 
 dist/
