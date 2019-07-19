@@ -1,0 +1,10 @@
+version: '2' # Docker-Compose 버전 2 사용.
+services: # 컨테이너별 서비스 정의.
+  loon_ai: # 웹서버 부분.
+    build: . # 현 위치의 DockerFile을 사용해 이미지 빌드.
+    command: npm run real
+    ports: # 웹서버 포트.
+      - '8000:8000'
+    volumes: # 웹서버 저장소.
+      - .:/usr/app/
+      - /usr/app/node_modules

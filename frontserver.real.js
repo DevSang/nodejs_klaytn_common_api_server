@@ -11,7 +11,7 @@ const config = require('./webpack.prod.config.js');
 
 require('dotenv').config({ path: './config/real.env' });
 
-const port = process.env.PORT || 18888;
+const port = process.env.PORT || 8000;
 const app = express();
 
 // this middleware serves all js files as gzip
