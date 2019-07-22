@@ -65,16 +65,17 @@ exports.requestToken = function () {
 
             console.log(JSON.stringify(events));
 
-            contract.methods.transfer(address, cav.utils.toPeb(value, 'KLAY')).send(_extends({}, params)).on('transactionHash', function (hash) {
-              console.log(hash);
-              console.log('-' * 50);
-            }).on('receipt', function (receipt) {
-              console.log(receipt);
-            }).on('error', console.error);
+            return _context2.abrupt('return', contract.methods.transfer(address, cav.utils.toPeb(value, 'KLAY')).send(_extends({}, params))
+            // .on('transactionHash', (hash) => {
+            //   // console.log(hash);
+            //   // console.log('-' * 50);
+            // })
+            // // .on('receipt', (receipt) => {
+            // //   // console.log(receipt);
+            // // })
+            .on('error', console.error));
 
-            return _context2.abrupt('return', true);
-
-          case 12:
+          case 11:
           case 'end':
             return _context2.stop();
         }

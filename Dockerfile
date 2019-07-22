@@ -3,7 +3,6 @@ WORKDIR /usr/app
 COPY package*.json ./
 
 RUN npm install node-gyp -g
-# RUN apt install node-gyp
 RUN npm install 
 
 COPY . .

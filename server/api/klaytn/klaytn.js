@@ -29,17 +29,22 @@ exports.requestToken = async (address, value) => {
   const events = await contract.events.allEvents();
   console.log(JSON.stringify(events));
 
-  contract.methods
-    .transfer(address, cav.utils.toPeb(value, 'KLAY'))
-    .send({ ...params })
-    .on('transactionHash', (hash) => {
-      console.log(hash);
-      console.log('-' * 50);
-    })
-    .on('receipt', (receipt) => {
-      console.log(receipt);
-    })
-    .on('error', console.error);
+  return (
+    contract.methods
+      .transfer(address, cav.utils.toPeb(value, 'KLAY'))
+      .send({ ...params })
+      // .on('transactionHash', (hash) => {
+      //   // console.log(hash);
+      //   // console.log('-' * 50);
+      // })
+      // // .on('receipt', (receipt) => {
+      // //   // console.log(receipt);
+      // // })
+      .on('error', console.error)
+  );
 
-  return true;
+  // const result = await contract.methods
+  //   .transfer(address, cav.utils.toPeb(value, 'KLAY'))
+  //   .send({ ...params });
+  // return result.transactionHash;
 };

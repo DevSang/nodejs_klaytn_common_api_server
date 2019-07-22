@@ -3,21 +3,33 @@ const klaytn = require('../api/klaytn/klaytn');
 module.exports = (router) => {
   // on routes that end in /bears
   // ----------------------------------------------------
-  router.route('/token').post(function (req, res, next) {
+  router.route('/token').post(async (req, res, next) => {
     try {
-      console.log(JSON.stringify(req.body));
-      klaytn.requestToken(req.body.address, req.body.value);
+      // console.log(JSON.stringify(req.body));
+      const result = await klaytn.requestToken(req.body.address, req.body.value);
+      console.log(result);
+      res.json({ message: JSON.stringify(result.transactionHash) });
     } catch (err) {
       console.log(err);
+      res.err(err);
     }
-    res.json({ message: 'hooray! welcome to our api!' });
     next();
   });
 
   router.route('/').post(function (req, res) {
     try {
       // console.log(JSON.stringify(req.body));
-      console.log('aaaa')
+      const cont = {
+        title: 'REWARDS',
+        contents: {
+          welcome: {
+            text: 'Welcome',
+            coin: 30,
+          },
+        },
+      };
+      console.log(cont.contents.keys()[0]);
+      console.log('aaaa');
       // const result = klaytn.requestToken(req.body.address, req.body.value);
       // console.log(result);
     } catch (err) {
