@@ -7,8 +7,7 @@ module.exports = (router) => {
     try {
       // console.log(JSON.stringify(req.body));
       const result = await klaytn.requestToken(req.body.address, req.body.value);
-      console.log(result);
-      res.json({ message: JSON.stringify(result.transactionHash) });
+      res.json({ message: result });
     } catch (err) {
       console.log(err);
       res.err(err);

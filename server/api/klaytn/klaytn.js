@@ -33,10 +33,11 @@ exports.requestToken = async (address, value) => {
     contract.methods
       .transfer(address, cav.utils.toPeb(value, 'KLAY'))
       .send({ ...params })
-      // .on('transactionHash', (hash) => {
-      //   // console.log(hash);
-      //   // console.log('-' * 50);
-      // })
+      .on('transactionHash', (hash) => {
+        console.log(hash);
+        return cav.utils.hexToUtf8(hash);
+        // console.log('-' * 50);
+      })
       // // .on('receipt', (receipt) => {
       // //   // console.log(receipt);
       // // })
