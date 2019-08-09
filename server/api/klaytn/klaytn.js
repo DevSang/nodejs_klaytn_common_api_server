@@ -1,9 +1,6 @@
-const Caver = require('caver-js');
+const myCav = require('../../utils/caver');
 
-const config = {
-  rpcURL: 'https://api.baobab.klaytn.net:8651',
-};
-const cav = new Caver(config.rpcURL);
+const { cav, cavConfig, contract } = myCav;
 
 exports.createAccount = async () => {
   // create kalytn account
@@ -11,41 +8,69 @@ exports.createAccount = async () => {
   console.log(JSON.stringify(account));
 };
 
-exports.requestToken = async (address, value) => {
-  const senderAddress = '0xd378a66035ec7b43c3f8eebedf0446577ddb5c89';
-  cav.klay.accounts.wallet.add(
-    '0xf66584dda7caabedc561f64196dd736c728e475a2bd1a5d99c334562899ba6c4',
-    senderAddress
-  );
+exports.getBalance = async (address) => {
+  const balance = await contract.methods.balanceOf(address).call();
+  return cav.utils.fromPeb(balance, 'KLAY');
+}
 
-  const myERC20 = require('../../../loon-token/build/contracts/MyERC20.json');
+exports.requestToken = async (address, value) => {
+  const senderAddress = cavConfig.address;
+  cav.klay.accounts.wallet.add(cavConfig.pKey, senderAddress);
+
   const params = {
     from: senderAddress,
     gas: '3000000',
   };
-  const contractAddress = '0x96b16d0C8dA2E05A464c58F51Bb118f9bF3F1D51';
-  const contract = new cav.klay.Contract(myERC20.abi, contractAddress, params);
+  return contract.methods
+    .transfer(address, cav.utils.toPeb(value, 'KLAY'))
+    .send(params)
+    .on('error', console.error);
+};
 
-  const events = await contract.events.allEvents();
-  console.log(JSON.stringify(events));
+exports.sendToken = async (fPkey, fAddress, tAddress, token) => {
+  try {
+    const feePayer = cav.klay.accounts.wallet.add(cavConfig.pKey); // 대납 feePayer wallet
+    const toAddress = tAddress || cavConfig.loonAddress;
+    let fromPkey = fPkey || cavConfig.pKey;
+    let fromAddress = fAddress || cavConfig.fromAddress;
+    if (fAddress === 'loon') {
+      fromPkey = cavConfig.loonPkey;
+      fromAddress = cavConfig.loonAddress;
+    }
 
-  return (
-    contract.methods
-      .transfer(address, cav.utils.toPeb(value, 'KLAY'))
-      .send({ ...params })
-      .on('transactionHash', (hash) => {
-        console.log(hash);
-        return cav.utils.hexToUtf8(hash);
-        // console.log('-' * 50);
-      })
-      // // .on('receipt', (receipt) => {
-      // //   // console.log(receipt);
-      // // })
-      .on('error', console.error)
-  );
+    const sender = cav.klay.accounts.wallet.add(fromPkey);
+    const balance = await contract.methods.balanceOf(fromAddress).call();
+    console.log(`contract addess: ${contract.options.address}`)
+    console.log(`sender address ${sender.address}`)
+    console.log(`sender balande ${balance}`)
+    console.log(`recipient address ${toAddress}`)
 
-  // const result = await contract.methods
-  //   .transfer(address, cav.utils.toPeb(value, 'KLAY'))
-  //   .send({ ...params });
-  // return result.transactionHash;
+    const pebToken = cav.utils.toPeb(token, 'KLAY');
+
+    if (parseFloat(balance) < parseFloat(pebToken)) {
+      throw new Error('balance is not enough')
+    }
+    const data = await contract.methods.transfer(toAddress, pebToken).encodeABI();
+    const ops = {
+      type: 'FEE_DELEGATED_SMART_CONTRACT_EXECUTION',
+      from: sender.address,
+      to: contract.options.address,
+      data,
+      gas: '300000',
+      value: 0,
+    };
+    const { rawTransaction: senderRawTransaction } = await cav.klay.accounts.signTransaction(ops, sender.privateKey);
+    const result = await cav.klay.sendTransaction({
+      type: 'FEE_DELEGATED_SMART_CONTRACT_EXECUTION',
+      senderRawTransaction,
+      feePayer: feePayer.address,
+    });
+    if (!result.status) {
+      throw new Error('Transaction Error');
+    }
+    return { status: true, msg: result.transactionHash };
+  } catch (err) {
+    console.log(err);
+    return { status: false, msg: err };
+  }
 };

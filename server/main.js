@@ -4,10 +4,13 @@ const bodyParser = require('body-parser');
 
 const app = express();
 const morgan = require('morgan');
+const cors = require('cors');
 
 // configure app
 app.use(morgan('dev')); // log requests to the console
 
+// cors 설정
+app.use(cors())
 // configure body parser
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());

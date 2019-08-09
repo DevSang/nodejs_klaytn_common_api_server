@@ -5,9 +5,14 @@ module.exports = (router) => {
   // ----------------------------------------------------
   router.route('/token').post(async (req, res, next) => {
     try {
-      // console.log(JSON.stringify(req.body));
-      const result = await klaytn.requestToken(req.body.address, req.body.value);
-      res.json({ message: result });
+      console.log('token')
+      const {
+        fromPkey, fromAddress, toAddress, token,
+      } = req.body;
+      const result = await klaytn.sendToken(fromPkey, fromAddress, toAddress, token);
+      if (result.status) {
+        res.json({ message: result.msg });
+      }
     } catch (err) {
       console.log(err);
       res.err(err);
@@ -15,6 +20,24 @@ module.exports = (router) => {
     next();
   });
 
+  router.route('/token/:address').get(async (req, res, next) => {
+    try {
+      const result = await klaytn.getBalance(req.params.address);
+      res.json({ balance: Number(result) });
+    } catch (err) {
+      console.log(err);
+      res.err(err);
+    }
+    next();
+  });
+  router.route('/test').post(async (req, res, next)=> {
+    const {
+      fromPkey, fromAddress, toAddress, token,
+    } = req.body;
+    const result = await klaytn.feeDelegator(fromPkey, fromAddress, toAddress, token);
+    res.json({ message: result })
+    next()
+  })
   router.route('/').post(function (req, res) {
     try {
       // console.log(JSON.stringify(req.body));
@@ -55,38 +78,4 @@ module.exports = (router) => {
 
   // on routes that end in /bears/:bear_id
   // ----------------------------------------------------
-  router
-    .route('/bears/:bear_id')
-    // get the bear with that id
-    .get(function (req, res) {})
-    // update the bear with this id
-    .put(function (req, res) {
-      // Bear.findById(req.params.bear_id, function(err, bear) {
-
-      // 	if (err)
-      // 		res.send(err);
-
-      // 	bear.name = req.body.name;
-      // 	bear.save(function(err) {
-      // 		if (err)
-      // 			res.send(err);
-
-      // 		res.json({ message: 'Bear updated!' });
-      // 	});
-
-      // });
-      res.json({ message: 'Bear updated!' });
-    })
-    // delete the bear with this id
-    .delete(function (req, res) {
-      // Bear.remove({
-      // 	_id: req.params.bear_id
-      // }, function(err, bear) {
-      // 	if (err)
-      // 		res.send(err);
-
-      // 	res.json({ message: 'Successfully deleted' });
-      // });
-      res.json({ message: 'Bear updated!' });
-    });
 };
