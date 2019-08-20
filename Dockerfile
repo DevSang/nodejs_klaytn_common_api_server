@@ -8,5 +8,6 @@ RUN npm install
 COPY . .
 RUN npm run build:real
 RUN babel server --out-dir build
-EXPOSE 8000 8080
+# EXPOSE 8000 8080
+EXPOSE 8080
 # CMD ["npm","run" ,"real"]
