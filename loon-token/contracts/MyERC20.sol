@@ -138,7 +138,7 @@ library SafeMath {
  * functions have been added to mitigate the well-known issues around setting
  * allowances. See `IERC20.approve`.
  */
-contract MyERC20 is IERC20 {
+contract LoonGEM is IERC20 {
     using SafeMath for uint256;
 
     mapping (address => uint256) private _balances;
@@ -155,7 +155,7 @@ contract MyERC20 is IERC20 {
         _symbol = symbol;
         _decimals = decimals;
 
-        _mint(msg.sender, 10000000000 * 10 ** uint256(decimals)); // CAUTION!
+        _mint(msg.sender, 1000000000 * 10 ** uint256(decimals)); // CAUTION!
     }
 
     /**

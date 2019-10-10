@@ -1,0 +1,41 @@
+type GemRewardType @pgTable(name: "gem_reward_type") {
+  id: Int! @unique
+  amount: Int
+  contents: String
+  createTime: DateTime @pgColumn(name: "create_time")
+  updateTime: DateTime @pgColumn(name: "update_time")
+}
+
+type GemTransaction @pgTable(name: "gem_transaction") {
+  id: Int! @unique
+  amount: Int
+  blockNumber: String @pgColumn(name: "block_number")
+  createTime: DateTime @pgColumn(name: "create_time")
+  receiverAddress: String @pgColumn(name: "receiver_address")
+  receiverUserRowId: Int @pgColumn(name: "receiver_user_row_id")
+  rewardType: String @pgColumn(name: "reward_type")
+  senderAddress: String @pgColumn(name: "sender_address")
+  senderUserRowId: Int @pgColumn(name: "sender_user_row_id")
+  status: Boolean @default(value: true)
+  txhash: String
+}
+
+type User @pgTable(name: "user") {
+  id: Int! @unique
+  code: String @default(value: "normal")
+  createTime: DateTime @pgColumn(name: "create_time")
+  email: String
+  updateTime: DateTime @pgColumn(name: "update_time")
+  userId: Int @pgColumn(name: "user_id")
+  walletId: UserWallet @pgColumn(name: "wallet_id")
+}
+
+type UserWallet @pgTable(name: "user_wallet") {
+  id: Int! @unique
+  address: String
+  createTime: DateTime @pgColumn(name: "create_time")
+  status: Boolean @default(value: true)
+  updateTime: DateTime @pgColumn(name: "update_time")
+  user: [User]
+  userRowId: Int @pgColumn(name: "user_row_id")
+}

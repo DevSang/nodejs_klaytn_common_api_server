@@ -1,22 +1,52 @@
-import ReactDOM from 'react-dom'
 
-import App from './App'
-import renderRoutes from './routes'
+// call the packages we need
+const express = require('express');
+const morgan = require('morgan');
+const bodyParser = require('body-parser');
+const cors = require('cors');
+const authMiddleware = require('./middleware/auth');
+const dotenv = require('dotenv');
+const app = express();
+// configure app
+app.use(morgan('dev')); // log requests to the console
 
-import './index.scss'
+// cors 설정
+app.use(cors())
+// body parser 설정
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json());
+app.use(authMiddleware);
 
-// Render App(root component).
-ReactDOM.render(
-  renderRoutes(App),
-  document.getElementById('root')
-)
+const port = process.env.PORT || 8080; // set our port
 
-// hot module replacement.
-// : If file changed, re-render root component(App.js).
-if (module.hot) {
-  module.hot.accept('./App.js', () => {
-    const NextApp = require('./App').default
-    ReactDOM.render(renderRoutes(NextApp), document.getElementById('root'))
-    console.log('Hot module replaced..')
-  })
+// create our router
+const router = express.Router();
+
+// env 설정 
+let path = __dirname.replace('src', 'config');
+if (!process.env.NODE_ENV) {
+  dotenv.config({path: `${path}/local.env`});
+  console.log(process.env.ID)
+} else if (process.env.NODE_ENV == 'production') {
+  dotenv.config({path: `${path}/real.env`});
+  console.log(process.env.ID)
+} else if (process.env.NODE_ENV == 'development') {
+  dotenv.config({path: `${path}/local.env`});
+  console.log(process.env.ID)
 }
+
+// middleware to use for all requests
+router.use(async (req, res, next) => {
+  // do logging
+  console.log('Something is happening.');
+  next();
+});
+
+require('./routes/routes')(router);
+
+// REGISTER OUR ROUTES -------------------------------
+app.use('/api', router);
+// START THE SERVER
+// =============================================================================
+app.listen(port);
+console.log(`Magic happens on port ${port}`);
