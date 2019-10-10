@@ -7,8 +7,8 @@ RUN npm install
 
 COPY . .
 RUN npm install prisma@1.30.5 -g
-RUN npm run build:real
-RUN babel server --out-dir build
+# RUN npm run build:real
+# RUN babel server --out-dir build
 # EXPOSE 8000 8080
 EXPOSE 8080
 # CMD ["npm","run" ,"real"]
