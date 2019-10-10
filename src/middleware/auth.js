@@ -69,8 +69,8 @@ module.exports = async (req, res, next) => {
             if(user.length > 0) {
                 let wallet = await prisma.userWallets({where: {status: true, userRowId: user[0].id}})
                 console.log(wallet)
-                if(wallet.length == 0 && req.body.address) {
-                    wallet = await prisma.createUserWallet({userRowId: user.id, address: req.body.address, status: true, createTime: new Date()})
+                if(wallet.length == 0 && (req.body.address || req.body.toAddress)) {
+                    wallet = await prisma.createUserWallet({userRowId: user.id, address: req.body.address ? req.body.address : req.body.toAddress, status: true, createTime: new Date()})
                     res.locals.wallet = wallet
                 } else {
                     res.locals.wallet = wallet.length> 0 ? wallet[0] : wallet;
