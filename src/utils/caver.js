@@ -76,6 +76,8 @@ exports.cavInfo = {
   }
 }
 exports.getDbCavInfo = async () => {
+  console.log(`process.env.SMART_CONTRACT_OWNER_ADDRESS ${process.env.SMART_CONTRACT_OWNER_ADDRESS}`)
+  console.log(`process.env.LOON_ADDRESS ${process.env.LOON_ADDRESS}`)
   const ownerWallet = await prisma.userWallets({where: {address: process.env.SMART_CONTRACT_OWNER_ADDRESS}});
   console.log(`ownerWallet ${JSON.stringify(ownerWallet)}`)
   const contractOwner = {
