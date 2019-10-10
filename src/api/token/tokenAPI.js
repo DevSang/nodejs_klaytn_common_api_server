@@ -6,7 +6,6 @@ let { cav, contract, cavInfo, getDbCavInfo } = myCav;
 
 // loon ai db에 user 생성
 exports.createAccount = async (req, res, next) => {
-  console.log('create wallet !!!!!')
   try {
     // create HEMO database
     const createTime = new Date();
@@ -16,7 +15,7 @@ exports.createAccount = async (req, res, next) => {
       res.status(201).json({wallet, user: res.locals.user, isExist: true});
     } else {
       let wallet = await prisma.createUserWallet({address: req.body.wallet_address, createTime});
-      const user = await prisma.createUser({userId: req.body.user_id, email: data.email, walletId: {connect: {id: wallet.id}}, createTime});
+      const user = await prisma.createUser({userId: req.body.user_id, email: req.body.email, walletId: {connect: {id: wallet.id}}, createTime});
       wallet = await prisma.updateUserWallet({data: {userRowId: user.id}, where: {id: wallet.id}});
       res.status(201).json({wallet, user, isExist: false});
     }
