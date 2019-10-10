@@ -1,0 +1,12 @@
+{
+  "type": "service_account",
+  "project_id": "looncup",
+  "private_key_id": "12aebb686fb9bb3922b45f0a9e37710aeabd5af3",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQDjduWBcRxWK/ev\nIsZA4haisNoroJCNVaBMltAu6HSYX7x/q2d1vZpj0emL1fW34uyFd8odMGT9z1QM\nTuKbClcFSRLmJ/Ln067JYdT+o0UhamwTqp2TA5Sw4q2tQTtVe3ZOXhoPKsgb04bn\n4wdpcA7sZPqrU5X9mJE/t1G+dCAbVXgZNdJTpRx5ee0Vm6ZFIPD5YUwyQ2xyhRmS\nUA3zvWHgl1aVnThllmkgmCiZL85AmCbHqhIVQRVcT1+9J70cYrQw/QN6VUpHCo2/\nJrnV7yfQlJcUW55M7M/ZY5/3PgAAI0APyhfEb2i6awkyoZTwVjky1FslVaFA8Fok\nIEYt/+0XAgMBAAECggEADtmtqixu+SvtrmrKyWROrgMge0YEVKCJJ/brUzoB7WDI\nDF3DEhYgL5woxI8MzRtCQy8gQZTt7al3h0YvLTLDnlNi/yZkiWtx4dvtQqKjhMb5\n6gly4teSVuoLBLYENanV03qj9jwzdv2cX89Gpe+W9IAIjYmWJUmsp0hEofaFkhh8\nLb3qpcBAdAq0Pbi+4hVV7bUYsRXmszSyp4e7jEI+zlgW1YXs27Gw2a/6ZWJe2P1M\nPEibKqK/lipn6ku+625BvrTgGrFiGVfu19kF2v199I2x8OoA+0FVyS7zgvLMaP/O\n/4eN3E9yUI8vyLKYpqiGxJy/qSR3cedQgOaGv9rwoQKBgQD+FNw85fiYTpYlHfqB\nURx55uq+bFbe8aF1BaT5YbmBtGuSkaOOTMxcIVI36LjVijZMOISzneg7InhOnb5n\nE8xiT3FIFYH3Q1NAr8mFlPXl0kWji7pC3x/yHfLX52OGdEQXacnBopIGppvwfArF\nWkxFcJG5AuqoC61ZJxiruJ5jAwKBgQDlLpXe6/HedLuOqbWcSa7x53FN+0xgSMNh\nw32p1MKD/xWEf1e8qt2QL3zmjlrL/yEArVShC2A36FmI+8WkvdjISktDwZhnCNwR\nAIio4o7wqM9SEj8epPI396CGiEGVUgVzhICcvehQmy2cML4jrJ/swA40VG34RLuP\ndG6dWPWnXQKBgHMy3hA2bJoRt32os/WB4xlaG0CvOkvm3j+CiaQQLN2kAcn4gmF4\nbIexC+gRegxHmArC7VfK1opJPKbYWoW9skM4pbH7HmwPeGWxzfrk6QCEb9KQ/aho\nJcHO1lYRsUw61syOyE0k+nRNghJtCy0jncU2Hrv1mJMMiFINqd/h2t4lAoGAJPha\n3Nca8VPLXbwqu8d3HTbEpFvBelbCjebHQro7lqdzhSg1sw2tKDFA6MBWDUpevIk5\nebEoGFy29M4ImAa4DbdOZOO5/gUD2wpHAVdqz4+rwgWHgR4CpNyhXJJmYfwVPQlG\n5gIMk9Q0i1mhkoeqVLq2j+J+yunrh7y0i1Vqa1ECgYEAmuf2yDwCt6R+NVHbMiw0\nShfGDbN/LfHKxOeJGtnoNNC2qEvflGnHoMduMqmIASKZT10V1cvtfPhRPg05vKpI\nqpzhKQ2k2ROAtvkH41UTWwISuEzANqo0SD2IHrluIzmrzarIOELr5DzBI9wOm4A9\nUqNmoOFbcvBCQPFHH2E2Tak=\n-----END PRIVATE KEY-----\n",
+  "client_email": "storage-access@looncup.iam.gserviceaccount.com",
+  "client_id": "108166078622011225688",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/storage-access%40looncup.iam.gserviceaccount.com"
+}
