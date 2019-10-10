@@ -4,3 +4,6 @@ build/*.gypi
 build/*.js
 
 dist/
+
+database/
+key/
