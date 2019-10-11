@@ -100,8 +100,8 @@ exports.sendToken = async (req, res, next) => {
         }
       } else {
         const gemHistory = await prisma.gemTransactions({where: {rewardType: contents, receiverUserRowId: res.locals.user.id, status: true, createTime_gte: new Date(`${today.getFullYear()}-${today.getMonth()}-01`)}, orderBy: 'createTime_DESC'});
+        let paidGem = 0;
         if(gemHistory.length > 0) {
-          let paidGem = 0;
           const check = await gemHistory.some((old) => {
               paidGem += old.amount;
               if(paidGem >=50) return true;
@@ -118,12 +118,16 @@ exports.sendToken = async (req, res, next) => {
       if(contents.includes('RECORD')) {
         if(rewards[0].contents == 'RECORD') {
             dbToken = rewards[0].amount * recordedDayCount + rewards[1].amount * isImageColorCount;
+            if(paidGem + dbToken >= 50) {
+              dbToken = 50 - paidGem;
+            }
         } else {
             dbToken = rewards[1].amount * recordedDayCount + rewards[0].amount * isImageColorCount;
         }
       } else {
           dbToken = rewards[0].amount;
       }
+
       console.log(`LOON AI TOKEN ${dbToken}`)
       if(dbToken !== token) {
         res.status(400).send('The requested value does not match the actual value');
