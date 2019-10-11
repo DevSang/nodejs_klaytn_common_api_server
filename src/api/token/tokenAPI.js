@@ -91,18 +91,23 @@ exports.sendToken = async (req, res, next) => {
     let rewards = null;
     if(category === 'REWARDS') {
       // history 확인
-      const gemHistory = await prisma.gemTransactions({where: {rewardType: contents, receiverUserRowId: res.locals.user.id, status: true}, orderBy: 'createTime_DESC'});
+      const today = new Date();
       if(contents == 'WELCOME' || contents == 'PHR') {
+        const gemHistory = await prisma.gemTransactions({where: {rewardType: contents, receiverUserRowId: res.locals.user.id, status: true}, orderBy: 'createTime_DESC'});
         if(gemHistory.length > 0) {
           console.log('[ERROR]: ALREADY PAID')
           return res.status(401).json({message: 'ALREADY PAID'});
         }
       } else {
+        const gemHistory = await prisma.gemTransactions({where: {rewardType: contents, receiverUserRowId: res.locals.user.id, status: true, createTime_gte: new Date(`${today.getFullYear()}-${today.getMonth()}-01`)}, orderBy: 'createTime_DESC'});
         if(gemHistory.length > 0) {
-          const today = new Date();
-          const paidDate = new Date(gemHistory[0].createTime);
-          if(today.getFullYear() == paidDate.getFullYear() && today.getMonth() == paidDate.getMonth()) {
-            console.log('[ERROR]: ALREADY PAID')
+          let paidGem = 0;
+          const check = await gemHistory.some((old) => {
+              paidGem += old.amount;
+              if(paidGem >=50) return true;
+          })
+          if(check) {
+            console.log(`paidGem ${paidHistory}`)
             return res.status(401).json({message: 'ALREADY PAID'});
           }
         }
