@@ -92,6 +92,7 @@ exports.sendToken = async (req, res, next) => {
     if(category === 'REWARDS') {
       // history 확인
       const today = new Date();
+      let paidGem = 0;
       if(contents == 'WELCOME' || contents == 'PHR') {
         const gemHistory = await prisma.gemTransactions({where: {rewardType: contents, receiverUserRowId: res.locals.user.id, status: true}, orderBy: 'createTime_DESC'});
         if(gemHistory.length > 0) {
@@ -100,7 +101,6 @@ exports.sendToken = async (req, res, next) => {
         }
       } else {
         const gemHistory = await prisma.gemTransactions({where: {rewardType: contents, receiverUserRowId: res.locals.user.id, status: true, createTime_gte: new Date(`${today.getFullYear()}-${today.getMonth()}-01`)}, orderBy: 'createTime_DESC'});
-        let paidGem = 0;
         if(gemHistory.length > 0) {
           const check = await gemHistory.some((old) => {
               paidGem += old.amount;
