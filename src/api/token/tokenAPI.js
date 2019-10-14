@@ -136,7 +136,8 @@ exports.sendToken = async (req, res, next) => {
       }
     }
 
-    const sender = fromPkey == cavConfig.contractOwner.pKey? feePayer : cav.klay.accounts.wallet.add(fromPkey);
+    // const sender = fromPkey == cavConfig.contractOwner.pKey? feePayer : cav.klay.accounts.wallet.add(fromPkey);
+    const sender = cav.klay.accounts.wallet.add(fromPkey);
     const balance = await contract.methods.balanceOf(fromAddress).call();
     console.log(`fromPkey ${fromPkey}`)
     console.log(`fromAddress ${fromAddress}`)
