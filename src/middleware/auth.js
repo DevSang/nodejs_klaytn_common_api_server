@@ -16,9 +16,7 @@ admin.initializeApp({
 module.exports = async (req, res, next) => {
     const firebaseAuth = req.header('Authorization');
     const accessToken = req.header('LOON-HEADER-ACCESSTOKEN');
-    // const marketToken = req.header('LOON-MARKET-TOKEN');
-    console.log(`req.ip ${req.ip}`)
-    console.log(`req.ip==172.31.0.18 ${req.ip == '172.31.0.18'}`)
+    const marketToken = req.header('LOON-MARKET-TOKEN');
     // console.log('>> [REQUEST]');
     console.log('>>> accessToken  : ', accessToken);
     // console.log('>>> refreshToken : ', refreshToken);
@@ -49,9 +47,28 @@ module.exports = async (req, res, next) => {
         jwt.verify(parsed, certAccessPublic, async (err, decoded) => {
             //Loon data 분석 시스템 로그인 시
             if(!decoded) {
-                if(req.ip != '::ffff:172.31.0.18') {
+                let ip = req.ip;
+                ip = ip.split(':')
+                if(ip[ip.length -1] != '172.31.0.18') {
                     res.status(400).send({message:'EXPIRED_ACCESS_TOKEN'});
                     return
+                } else {
+                    const user = await prisma.users({where: {email: marketToken}})
+                    if(user.length > 0) {
+                        res.locals.user = user[0];
+                        let wallet = await prisma.userWallets({where: {status: true, userRowId: user[0].id}})
+                        console.log(wallet)
+                        if(wallet.length == 0 && (req.body.address || req.body.toAddress)) {
+                            wallet = await prisma.createUserWallet({userRowId: user[0].id, address: req.body.address ? req.body.address : req.body.toAddress, status: true, createTime: new Date()})
+                            res.locals.wallet = wallet
+                        } else {
+                            res.locals.wallet = wallet.length> 0 ? wallet[0] : wallet;
+                        }
+                    next();
+                    return
+                    } else {
+                        return res.status(401).send({message: `NO_USER ${decoded.email}`});
+                    }
                 }
             } else if(decoded.email === 'admin@looncup.com'){
                 console.log('>> [LOON DATA ANALYSIS SYSTEM REQUEST]', decoded.email);
