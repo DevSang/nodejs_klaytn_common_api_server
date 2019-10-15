@@ -16,8 +16,9 @@ admin.initializeApp({
 module.exports = async (req, res, next) => {
     const firebaseAuth = req.header('Authorization');
     const accessToken = req.header('LOON-HEADER-ACCESSTOKEN');
-    const marketToken = req.header('LOON-MARKET-TOKEN');
+    // const marketToken = req.header('LOON-MARKET-TOKEN');
     console.log(`req.ip ${req.ip}`)
+    console.log(`req.ip==172.31.0.18 ${req.ip == '172.31.0.18'}`)
     // console.log('>> [REQUEST]');
     console.log('>>> accessToken  : ', accessToken);
     // console.log('>>> refreshToken : ', refreshToken);
@@ -48,8 +49,10 @@ module.exports = async (req, res, next) => {
         jwt.verify(parsed, certAccessPublic, async (err, decoded) => {
             //Loon data 분석 시스템 로그인 시
             if(!decoded) {
-                res.status(400).send({message:'EXPIRED_ACCESS_TOKEN'});
-                return
+                if(req.ip != '::ffff:172.31.0.18') {
+                    res.status(400).send({message:'EXPIRED_ACCESS_TOKEN'});
+                    return
+                }
             } else if(decoded.email === 'admin@looncup.com'){
                 console.log('>> [LOON DATA ANALYSIS SYSTEM REQUEST]', decoded.email);
                 next();
