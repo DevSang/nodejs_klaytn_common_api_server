@@ -17,7 +17,7 @@ module.exports = async (req, res, next) => {
     const firebaseAuth = req.header('Authorization');
     const accessToken = req.header('LOON-HEADER-ACCESSTOKEN');
     const marketToken = req.header('LOON-MARKET-TOKEN');
-
+    console.log(`req.ip ${req.ip}`)
     // console.log('>> [REQUEST]');
     console.log('>>> accessToken  : ', accessToken);
     // console.log('>>> refreshToken : ', refreshToken);
@@ -30,7 +30,6 @@ module.exports = async (req, res, next) => {
         try {
             const firebaseUser = await admin.auth().verifyIdToken(parsed);
             const user = await prisma.users({where: {email: firebaseUser.email}})
-            console.log(req)
             if(user.length < 1) return res.status(401).send({message: `NO_USER ${firebaseUser.email}`});
             else {
                 const wallet = await prisma.userWallets({where: {status: true, userRowId: user[0].id}})
@@ -49,7 +48,6 @@ module.exports = async (req, res, next) => {
         jwt.verify(parsed, certAccessPublic, async (err, decoded) => {
             //Loon data 분석 시스템 로그인 시
             if(!decoded) {
-                console.log(`req.ip ${req.ip}`)
                 res.status(400).send({message:'EXPIRED_ACCESS_TOKEN'});
                 return
             } else if(decoded.email === 'admin@looncup.com'){
