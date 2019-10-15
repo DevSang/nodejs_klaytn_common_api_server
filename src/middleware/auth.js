@@ -49,7 +49,7 @@ module.exports = async (req, res, next) => {
             if(!decoded) {
                 let ip = req.ip;
                 ip = ip.split(':')
-                if(ip[ip.length -1] != '172.31.0.18') {
+                if(ip[ip.length -1] != '35.221.78.125') {
                     res.status(400).send({message:'EXPIRED_ACCESS_TOKEN'});
                     return
                 } else {
