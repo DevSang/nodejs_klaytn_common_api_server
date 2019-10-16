@@ -47,11 +47,8 @@ module.exports = async (req, res, next) => {
         jwt.verify(parsed, certAccessPublic, async (err, decoded) => {
             //Loon data 분석 시스템 로그인 시
             if(!decoded) {
-                let ip = req.ip;
-                ip = ip.split(':')
-                if(ip[ip.length -1] != '35.221.78.125') {
-                    // res.status(400).send({message:'EXPIRED_ACCESS_TOKEN'});
-                    res.status(400).send({message:`ip[ip.length -1] ${ip[ip.length -1]} ${JSON.stringify(ip)}`});
+                if(!marketToken) {
+                    res.status(400).send({message:'EXPIRED_ACCESS_TOKEN'});
                     return
                 } else {
                     const user = await prisma.users({where: {email: marketToken}})
