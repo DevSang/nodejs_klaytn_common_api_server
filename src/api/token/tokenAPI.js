@@ -86,6 +86,11 @@ exports.sendToken = async (req, res, next) => {
       fromAddress = cavConfig.loon.address;
     }
 
+    // const sender = cav.klay.accounts.wallet.add(fromPkey);
+    let sender = fromPkey == cavConfig.contractOwner.pKey? feePayer : cav.klay.accounts.wallet.add(fromPkey);
+    let senderInfo = sender.address == cavConfig.loon.address ? cavConfig.loon : cavConfig.contractOwner;
+    let receiverInfo = res.locals.wallet;
+
     // reward token 값 확인
     let dbToken;
     let rewards = null;
@@ -99,7 +104,11 @@ exports.sendToken = async (req, res, next) => {
           console.log('[ERROR]: ALREADY PAID')
           return res.status(401).json({message: 'ALREADY PAID'});
         }
-      } else {
+      } else if(contents == 'INVITE FRIEND') {
+        let receiverUser = await prisma.userWallets({where: {address: toAddress}});
+        if(!receiverUser || receiverUser.length == 0) return res.status(401).json({message: `Recever User not found(adderss: ${address})`});
+        receiverInfo = receiverUser[0];
+      }else {
         const gemHistory = await prisma.gemTransactions({where: {rewardType: contents, receiverUserRowId: res.locals.user.id, status: true, createTime_gte: new Date(`${today.getFullYear()}-${today.getMonth()}-01`)}, orderBy: 'createTime_DESC'});
         if(gemHistory.length > 0) {
           const check = await gemHistory.some((old) => {
@@ -136,19 +145,8 @@ exports.sendToken = async (req, res, next) => {
       }
     }
 
-    // const sender = fromPkey == cavConfig.contractOwner.pKey? feePayer : cav.klay.accounts.wallet.add(fromPkey);
-    const sender = cav.klay.accounts.wallet.add(fromPkey);
     const balance = await contract.methods.balanceOf(fromAddress).call();
-    console.log(`fromPkey ${fromPkey}`)
-    console.log(`fromAddress ${fromAddress}`)
-    console.log(`toAddress ${toAddress}`)
-    console.log(`token ${token}`)
-    console.log(`category ${category}`)
-    console.log(`contents ${contents}`)
-    console.log(`contract addess: ${contract.options.address}`)
-    console.log(`sender address ${sender.address}`)
-    console.log(`sender balande ${balance}`)
-    console.log(`recipient address ${toAddress}`)
+    console.log(`fromPkey ${fromPkey} fromAddress ${fromAddress} toAddress ${toAddress} token ${token} category ${category} contents ${contents} sender address ${sender.address}`)
 
     const pebToken = cav.utils.toPeb(token, 'KLAY');
 
@@ -169,18 +167,16 @@ exports.sendToken = async (req, res, next) => {
     };
     const { rawTransaction: senderRawTransaction } = await cav.klay.accounts.signTransaction(ops, sender.privateKey);
     const result = await cav.klay.sendTransaction({
-      // type: 'FEE_DELEGATED_SMART_CONTRACT_EXECUTION',
       senderRawTransaction,
       feePayer: feePayer.address,
     });
     
-    if(toAddress == res.locals.wallet.address) {
-      const senderInfo = sender.address == cavConfig.loon.address ? cavConfig.loon : cavConfig.contractOwner;
-      await prisma.createGemTransaction({
+     
+    await prisma.createGemTransaction({ 
         senderUserRowId: senderInfo.userRowId, 
         senderAddress: senderInfo.address,
-        receiverUserRowId: res.locals.user.id, 
-        receiverAddress: res.locals.wallet.address, 
+        receiverUserRowId: receiverInfo.userRowId, 
+        receiverAddress: receiverInfo.address, 
         amount: token,
         txhash: result.transactionHash,
         blockNumber: result.blockNumber.toString(),
@@ -188,20 +184,6 @@ exports.sendToken = async (req, res, next) => {
         createTime: new Date(),
         rewardType: rewards ? rewards[0].contents : null
       })
-    } else {
-      await prisma.createGemTransaction({
-        senderUserRowId: res.locals.user.id, 
-        senderAddress: sender.address,
-        receiverUserRowId: cavConfig.loon.userRowId,
-        receiverAddress: toAddress, 
-        amount: token,
-        txhash: result.transactionHash,
-        blockNumber: result.blockNumber.toString(),
-        status: result.status,
-        createTime: new Date(),
-        rewardType: rewards ? rewards[0].contents : null
-      })
-    }
 
     if (!result.status) {
       // throw new Error('Transaction Error');

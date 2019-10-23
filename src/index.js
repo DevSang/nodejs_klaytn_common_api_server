@@ -36,12 +36,12 @@ if (!process.env.NODE_ENV) {
 }
 
 // middleware to use for all requests
-router.use(async (req, res, next) => {
-  // do logging
-  // console.log('Add Access-Control-Allow-Origin header');
-  // res.setHeader('Access-Control-Allow-Origin', '*' )
-  next();
-});
+// router.use(async (req, res, next) => {
+//   // do logging
+//   // console.log('Add Access-Control-Allow-Origin header');
+//   // res.setHeader('Access-Control-Allow-Origin', '*' )
+//   next();
+// });
 
 require('./routes/routes')(router);
 

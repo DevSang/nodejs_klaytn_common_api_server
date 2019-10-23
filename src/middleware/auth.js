@@ -25,7 +25,6 @@ module.exports = async (req, res, next) => {
     if (firebaseAuth) {
         let parsed = firebaseAuth.split('Bearer ')[1];
         // console.log(admin.auth())
-        console.log(parsed)
         try {
             const firebaseUser = await admin.auth().verifyIdToken(parsed);
             const user = await prisma.users({where: {email: firebaseUser.email}})
@@ -55,7 +54,6 @@ module.exports = async (req, res, next) => {
                     if(user.length > 0) {
                         res.locals.user = user[0];
                         let wallet = await prisma.userWallets({where: {status: true, userRowId: user[0].id}})
-                        console.log(wallet)
                         if(wallet.length == 0 && (req.body.address || req.body.toAddress)) {
                             wallet = await prisma.createUserWallet({userRowId: user[0].id, address: req.body.address ? req.body.address : req.body.toAddress, status: true, createTime: new Date()})
                             res.locals.wallet = wallet
@@ -82,10 +80,8 @@ module.exports = async (req, res, next) => {
             }
             console.log('>> [COMMON REQUEST] from :', decoded.email);
             const user = await prisma.users({where: {email: decoded.email}})
-            console.log(JSON.stringify(user))
             if(user.length > 0) {
                 let wallet = await prisma.userWallets({where: {status: true, userRowId: user[0].id}})
-                console.log(wallet)
                 if(wallet.length == 0 && (req.body.address || req.body.toAddress)) {
                     wallet = await prisma.createUserWallet({userRowId: user[0].id, address: req.body.address ? req.body.address : req.body.toAddress, status: true, createTime: new Date()})
                     res.locals.wallet = wallet
