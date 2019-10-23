@@ -86,8 +86,8 @@ exports.sendToken = async (req, res, next) => {
       fromAddress = cavConfig.loon.address;
     }
 
-    // const sender = cav.klay.accounts.wallet.add(fromPkey);
-    let sender = fromPkey == cavConfig.contractOwner.pKey? feePayer : cav.klay.accounts.wallet.add(fromPkey);
+    const sender = cav.klay.accounts.wallet.add(fromPkey);
+    // let sender = fromPkey == cavConfig.contractOwner.pKey? feePayer : cav.klay.accounts.wallet.add(fromPkey);
     let senderInfo = sender.address == cavConfig.loon.address ? cavConfig.loon : cavConfig.contractOwner;
     let receiverInfo = res.locals.wallet;
 
