@@ -200,6 +200,86 @@ exports.sendToken = async (req, res, next) => {
   }
 };
 
+exports.sendCameraToken = async (req, res, next) => {
+  try {
+    let {
+      userId,
+      toAddress,
+      contents,
+      token,
+    } = req.body;
+
+    const cavConfig = await getDbCavInfo();
+
+    cav.klay.accounts.wallet.clear();
+    const feePayer = cav.klay.accounts.wallet.add(process.env.FEE_PAYER_KEY, process.env.FEE_PAYER_ADDRESS); // 대납 feePayer wallet
+    fromPkey = cavConfig.contractOwner.pKey; // gen token 보내는 private key(없으면 loon ai pk)
+    fromAddress = cavConfig.contractOwner.address; // gen token 보내는 address(없으면 loon ai address)
+    const sender = cav.klay.accounts.wallet.add(fromPkey);
+    // let sender = fromPkey == cavConfig.contractOwner.pKey? feePayer : cav.klay.accounts.wallet.add(fromPkey);
+    let senderInfo = cavConfig.contractOwner;
+    let user = await prisma.users({where: {userId}});
+    if(user.length == 0) return res.status(401).json({message: `NO USER ID: ${userId}`});
+
+    let receiverInfo = await prisma.userWallets({where: {userRowId: user[0].id, address: toAddress, status: true}});
+    if(receiverInfo.length == 0) return res.status(401).json({message: `NO USER ADDRESS ${toAddress}`});
+    receiverInfo = receiverInfo[0];
+    
+    const today = new Date();
+    const gemHistory = await prisma.gemTransactions({where: {rewardType: contents, receiverUserRowId: receiverInfo.userRowId, status: true, createTime_gte: new Date(`${today.getFullYear()}-${today.getMonth()}-01`)}, orderBy: 'createTime_DESC'});
+    if(gemHistory.length >= 5) {
+      console.log('[ERROR]: ALREADY PAID')
+      return res.status(401).json({message: 'ALREADY PAID'});
+    } 
+
+    let rewards = await prisma.gemRewardTypes({where: {contents}, orderBy: 'contents_DESC'});
+    token = rewards[0].amount;
+
+    const pebToken = cav.utils.toPeb(token, 'KLAY');
+
+    const data = await contract.methods.transfer(toAddress, pebToken).encodeABI();
+    const ops = {
+        type: 'FEE_DELEGATED_SMART_CONTRACT_EXECUTION',
+        from: sender.address,
+        to: contract.options.address,
+        data,
+        gas: '300000',
+        value: 0,
+    };
+    const { rawTransaction: senderRawTransaction } = await cav.klay.accounts.signTransaction(ops, sender.privateKey);
+    const result = await cav.klay.sendTransaction({
+      senderRawTransaction,
+      feePayer: feePayer.address,
+    });
+    console.log(`transactionHash ${result.transactionHash}`)
+      
+    await prisma.createGemTransaction({ 
+      senderUserRowId: senderInfo.userRowId, 
+      senderAddress: senderInfo.address,
+      receiverUserRowId: receiverInfo.userRowId, 
+      receiverAddress: receiverInfo.address, 
+      amount: token,
+      txhash: result.transactionHash,
+      blockNumber: result.blockNumber.toString(),
+      status: result.status,
+      createTime: new Date(),
+      rewardType: rewards ? rewards[0].contents : null
+    })
+    if (!result.status) {
+      // throw new Error('Transaction Error');
+      // await prisma.createGemTransaction({senderId})
+      res.status(400).send({message: 'Transaction Error'})
+    } else {
+      res.json({ message: result.transactionHash, status: true });
+    }
+    next()
+  } catch(err) {
+    console.log(err);
+    res.status(400).send({message: err.message})
+    next()
+  }
+}
+
 // exports.mint = async (address, amount) => {
 //   try {
 //     const params = {

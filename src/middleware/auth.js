@@ -60,8 +60,8 @@ module.exports = async (req, res, next) => {
                         } else {
                             res.locals.wallet = wallet.length> 0 ? wallet[0] : wallet;
                         }
-                    next();
-                    return
+                        next();
+                        return
                     } else {
                         return res.status(401).send({message: `NO_USER ${decoded.email}`});
                     }

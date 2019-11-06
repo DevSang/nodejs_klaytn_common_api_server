@@ -4,25 +4,18 @@ module.exports = (router) => {
   // on routes that end in /bears
   // ----------------------------------------------------
   router.route('/token').post(tokenAPI.sendToken, (req, res, next) => {
-    // try {
-    //   console.log('token')
-    //   const {
-    //     fromPkey, fromAddress, toAddress, token, category, contents,
-    //   } = req.body;
-    //   const result = await tokenAPI.sendToken(fromPkey, fromAddress, toAddress, token, category, contents);
-    //   if (result.status) {
-    //     res.json({ message: result.msg });
-    //   }
-    // } catch (err) {
-    //   console.log(err);
-    //   res.err(err);
-    // }
+    next();
+  });
+
+  router.route('/token/camera').post(tokenAPI.sendCameraToken, (req, res, next) => {
     next();
   });
 
   router.route('/token/:address').get(tokenAPI.getBalance, (req, res, next) => {
     next();
   });
+
+
 
   router.route('/user').post(tokenAPI.createAccount, (req, res, next) => {
     next();
