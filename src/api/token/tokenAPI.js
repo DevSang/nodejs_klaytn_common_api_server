@@ -3,8 +3,7 @@ const { prisma } = require('../../generated/prisma-client')
 
 let { cav, contract, cavInfo, getDbCavInfo } = myCav;
 const feePayer = cav.klay.accounts.wallet.add(process.env.FEE_PAYER_KEY, process.env.FEE_PAYER_ADDRESS); 
-const cavConfig = await getDbCavInfo();
-const owner = cavConfig.contractOwner.pKey? feePayer : cav.klay.accounts.wallet.add(cavConfig.contractOwner.pKey, cavConfig.contractOwner.address);
+const owner = cavInfo.contractOwner.pKey? feePayer : cav.klay.accounts.wallet.add(cavInfo.contractOwner.pKey, cavInfo.contractOwner.address);
 
 // loon ai db에 user 생성
 exports.createAccount = async (req, res, next) => {
@@ -76,6 +75,7 @@ exports.sendToken = async (req, res, next) => {
     } = req.body;
     const recordedDayCount = req.body.recordedDayCount || 0;
     const isImageColorCount = req.body.isImageColorCount || 0;
+    const cavConfig = await getDbCavInfo();
 
     // 대납 feePayer wallet
     toAddress = toAddress || cavConfig.loon.address; // gem token 받는 address(없으면 loonlab address)
@@ -213,6 +213,8 @@ exports.sendCameraToken = async (req, res, next) => {
       contents,
       token,
     } = req.body;
+
+    const cavConfig = await getDbCavInfo();
 
     // cav.klay.accounts.wallet.clear();
     // const feePayer = await cav.klay.accounts.wallet.add(process.env.FEE_PAYER_KEY, process.env.FEE_PAYER_ADDRESS); // 대납 feePayer wallet
