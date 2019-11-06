@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "node src/index.js",
-    "start:prod": "forever start --name 'loon-server' src/index.js",
+    "start:prod": "NODE_ENV=production ./node_modules/forever/bin/forever start -l /home/log/prod.log -a src/index.js",
     "start:dev": "nodemon src/index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
