@@ -127,7 +127,7 @@ exports.sendToken = async (req, res, next) => {
       if(contents.includes('RECORD')) {
         if(rewards[0].contents == 'RECORD') {
             dbToken = rewards[0].amount * recordedDayCount + rewards[1].amount * isImageColorCount;
-            if(paidGem + dbToken >= 50) {
+            if(paidGem + dbToken > 50) {
               dbToken = 50 - paidGem;
             }
         } else {
@@ -139,7 +139,7 @@ exports.sendToken = async (req, res, next) => {
 
       console.log(`LOON AI TOKEN ${dbToken}`)
       if(dbToken !== token) {
-        res.status(400).send('The requested value does not match the actual value');
+        res.status(400).send(`The requested value does not match the actual value ${dbToken} tokke${tokke}`);
         next();
         return;
       }
@@ -188,6 +188,7 @@ exports.sendToken = async (req, res, next) => {
     if (!result.status) {
       // throw new Error('Transaction Error');
       // await prisma.createGemTransaction({senderId})
+      console.log(result)
       res.status(400).send({message: 'Transaction Error'})
     } else {
       res.json({ message: result.transactionHash, status: true });
