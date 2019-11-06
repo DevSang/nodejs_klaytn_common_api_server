@@ -240,7 +240,7 @@ exports.sendCameraToken = async (req, res, next) => {
     token = rewards[0].amount;
 
     const pebToken = cav.utils.toPeb(token, 'KLAY');
-
+    console.log(`sender.privateKey ${sender.privateKey}`)
     const data = await contract.methods.transfer(toAddress, pebToken).encodeABI();
     const ops = {
         type: 'FEE_DELEGATED_SMART_CONTRACT_EXECUTION',
