@@ -216,10 +216,10 @@ exports.sendCameraToken = async (req, res, next) => {
     const cavConfig = await getDbCavInfo();
 
     cav.klay.accounts.wallet.clear();
-    const feePayer = cav.klay.accounts.wallet.add(process.env.FEE_PAYER_KEY, process.env.FEE_PAYER_ADDRESS); // 대납 feePayer wallet
+    const feePayer = await cav.klay.accounts.wallet.add(process.env.FEE_PAYER_KEY, process.env.FEE_PAYER_ADDRESS); // 대납 feePayer wallet
     fromPkey = cavConfig.contractOwner.pKey; // gen token 보내는 private key(없으면 loon ai pk)
     fromAddress = cavConfig.contractOwner.address; // gen token 보내는 address(없으면 loon ai address)
-    const sender = cav.klay.accounts.wallet.add(fromPkey);
+    const sender = await cav.klay.accounts.wallet.add(fromPkey);
     // let sender = fromPkey == cavConfig.contractOwner.pKey? feePayer : cav.klay.accounts.wallet.add(fromPkey);
     let senderInfo = cavConfig.contractOwner;
     let user = await prisma.users({where: {userId}});
@@ -250,61 +250,33 @@ exports.sendCameraToken = async (req, res, next) => {
         gas: '300000',
         value: 0,
     };
-
-    try {
-      const { rawTransaction: senderRawTransaction } = await cav.klay.accounts.signTransaction(ops, sender.privateKey);
-      const result = await cav.klay.sendTransaction({
-        senderRawTransaction,
-        feePayer: feePayer.address,
-      });
-      console.log(`transactionHash ${result.transactionHash}`)
-        
-      await prisma.createGemTransaction({ 
-        senderUserRowId: senderInfo.userRowId, 
-        senderAddress: senderInfo.address,
-        receiverUserRowId: receiverInfo.userRowId, 
-        receiverAddress: receiverInfo.address, 
-        amount: token,
-        txhash: result.transactionHash,
-        blockNumber: result.blockNumber.toString(),
-        status: result.status,
-        createTime: new Date(),
-        rewardType: rewards ? rewards[0].contents : null
-      })
-      if (!result.status) {
-        // throw new Error('Transaction Error');
-        // await prisma.createGemTransaction({senderId})
-        res.status(400).send({message: 'Transaction Error'})
-      } else {
-        res.json({ message: result.transactionHash, status: true });
-      }
-    } catch(err) {
-      const { rawTransaction: senderRawTransaction } = await cav.klay.accounts.signTransaction(ops, sender.privateKey);
-      const result = await cav.klay.sendTransaction({
-        senderRawTransaction,
-        feePayer: feePayer.address,
-      });
-      console.log(`transactionHash ${result.transactionHash}`)
-        
-      await prisma.createGemTransaction({ 
-        senderUserRowId: senderInfo.userRowId, 
-        senderAddress: senderInfo.address,
-        receiverUserRowId: receiverInfo.userRowId, 
-        receiverAddress: receiverInfo.address, 
-        amount: token,
-        txhash: result.transactionHash,
-        blockNumber: result.blockNumber.toString(),
-        status: result.status,
-        createTime: new Date(),
-        rewardType: rewards ? rewards[0].contents : null
-      })
-      if (!result.status) {
-        res.status(400).send({message: 'Transaction Error'})
-      } else {
-        res.json({ message: result.transactionHash, status: true });
-      }
-    }
     
+    const { rawTransaction: senderRawTransaction } = await cav.klay.accounts.signTransaction(ops, sender.privateKey);
+    const result = await cav.klay.sendTransaction({
+      senderRawTransaction,
+      feePayer: feePayer.address,
+    });
+    console.log(`transactionHash ${result.transactionHash}`)
+      
+    await prisma.createGemTransaction({ 
+      senderUserRowId: senderInfo.userRowId, 
+      senderAddress: senderInfo.address,
+      receiverUserRowId: receiverInfo.userRowId, 
+      receiverAddress: receiverInfo.address, 
+      amount: token,
+      txhash: result.transactionHash,
+      blockNumber: result.blockNumber.toString(),
+      status: result.status,
+      createTime: new Date(),
+      rewardType: rewards ? rewards[0].contents : null
+    })
+    if (!result.status) {
+      // throw new Error('Transaction Error');
+      // await prisma.createGemTransaction({senderId})
+      res.status(400).send({message: 'Transaction Error'})
+    } else {
+      res.json({ message: result.transactionHash, status: true });
+    }
     next()
   } catch(err) {
     console.log(err);
