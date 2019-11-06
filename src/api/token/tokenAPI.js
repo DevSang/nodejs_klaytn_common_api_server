@@ -109,6 +109,8 @@ exports.sendToken = async (req, res, next) => {
         if(!receiverUser || receiverUser.length == 0) return res.status(401).json({message: `Recever User not found(adderss: ${address})`});
         receiverInfo = receiverUser[0];
       }else {
+        console.log(`date ${date}`)
+        console.log(` new Date(date) ${new Date(date)}`)
         const gemHistory = await prisma.gemTransactions({where: {rewardType: contents, receiverUserRowId: res.locals.user.id, status: true, createTime_gte: new Date(date)}, orderBy: 'createTime_DESC'});
         if(gemHistory.length > 0) {
           const check = await gemHistory.some((old) => {
