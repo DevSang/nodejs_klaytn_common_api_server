@@ -250,7 +250,7 @@ exports.sendCameraToken = async (req, res, next) => {
         gas: '300000',
         value: 0,
     };
-    const { rawTransaction: senderRawTransaction } = await cav.klay.accounts.signTransaction(ops, sender.privateKey);
+    const { rawTransaction: senderRawTransaction } = await cav.klay.accounts.signTransaction(ops, fromPkey);
     const result = await cav.klay.sendTransaction({
       senderRawTransaction,
       feePayer: feePayer.address,
