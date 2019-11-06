@@ -3,7 +3,7 @@ const { prisma } = require('../../generated/prisma-client')
 
 let { cav, contract, cavInfo, getDbCavInfo } = myCav;
 const feePayer = cav.klay.accounts.wallet.add(process.env.FEE_PAYER_KEY, process.env.FEE_PAYER_ADDRESS); 
-const owner = cavInfo.contractOwner.pKey? feePayer : cav.klay.accounts.wallet.add(cavInfo.contractOwner.pKey, cavInfo.contractOwner.address);
+const owner = cavInfo.contractOwner.pKey == feePayer.privateKey? feePayer : cav.klay.accounts.wallet.add(cavInfo.contractOwner.pKey, cavInfo.contractOwner.address);
 
 // loon ai db에 user 생성
 exports.createAccount = async (req, res, next) => {
