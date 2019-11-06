@@ -2,7 +2,8 @@ const myCav = require('../../utils/caver');
 const { prisma } = require('../../generated/prisma-client')
 
 let { cav, contract, cavInfo, getDbCavInfo } = myCav;
-
+const feePayer = cav.klay.accounts.wallet.add(process.env.FEE_PAYER_KEY, process.env.FEE_PAYER_ADDRESS); 
+const owner = cavConfig.contractOwner.pKey? feePayer : cav.klay.accounts.wallet.add(cavConfig.contractOwner.pKey, cavConfig.contractOwner.address);
 
 // loon ai db에 user 생성
 exports.createAccount = async (req, res, next) => {
@@ -76,8 +77,7 @@ exports.sendToken = async (req, res, next) => {
     const isImageColorCount = req.body.isImageColorCount || 0;
     const cavConfig = await getDbCavInfo();
 
-    cav.klay.accounts.wallet.clear();
-    const feePayer = cav.klay.accounts.wallet.add(process.env.FEE_PAYER_KEY, process.env.FEE_PAYER_ADDRESS); // 대납 feePayer wallet
+    // 대납 feePayer wallet
     toAddress = toAddress || cavConfig.loon.address; // gem token 받는 address(없으면 loonlab address)
     fromPkey = fromPkey || cavConfig.contractOwner.pKey; // gen token 보내는 private key(없으면 loon ai pk)
     fromAddress = fromAddress || cavConfig.contractOwner.address; // gen token 보내는 address(없으면 loon ai address)
@@ -86,7 +86,8 @@ exports.sendToken = async (req, res, next) => {
       fromAddress = cavConfig.loon.address;
     }
 
-    const sender = cav.klay.accounts.wallet.add(fromPkey);
+    // const sender = cav.klay.accounts.wallet.add(fromPkey);
+    let sender = fromPkey == cavConfig.contractOwner.pKey? owner : cav.klay.accounts.wallet.add(fromPkey, fromAddress);
     // let sender = fromPkey == cavConfig.contractOwner.pKey? feePayer : cav.klay.accounts.wallet.add(fromPkey);
     let senderInfo = sender.address == cavConfig.loon.address ? cavConfig.loon : cavConfig.contractOwner;
     let receiverInfo = res.locals.wallet;
@@ -215,15 +216,15 @@ exports.sendCameraToken = async (req, res, next) => {
 
     const cavConfig = await getDbCavInfo();
 
-    cav.klay.accounts.wallet.clear();
-    const feePayer = await cav.klay.accounts.wallet.add(process.env.FEE_PAYER_KEY, process.env.FEE_PAYER_ADDRESS); // 대납 feePayer wallet
+    // cav.klay.accounts.wallet.clear();
+    // const feePayer = await cav.klay.accounts.wallet.add(process.env.FEE_PAYER_KEY, process.env.FEE_PAYER_ADDRESS); // 대납 feePayer wallet
     fromPkey = cavConfig.contractOwner.pKey; // gen token 보내는 private key(없으면 loon ai pk)
     fromAddress = cavConfig.contractOwner.address; // gen token 보내는 address(없으면 loon ai address)
     console.log(`0 fromPkey ${fromPkey}`)
-    const sender = await cav.klay.accounts.wallet.add(fromPkey);
+    
     // let sender = fromPkey == cavConfig.contractOwner.pKey? feePayer : cav.klay.accounts.wallet.add(fromPkey);
     let senderInfo = cavConfig.contractOwner;
-    console.log(`1 sender.privateKey ${sender.privateKey}`)
+    
     let user = await prisma.users({where: {userId}});
     if(user.length == 0) return res.status(401).json({message: `NO USER ID: ${userId}`});
 
@@ -242,24 +243,21 @@ exports.sendCameraToken = async (req, res, next) => {
     token = rewards[0].amount;
 
     const pebToken = cav.utils.toPeb(token, 'KLAY');
-    console.log(`2 sender.privateKey ${sender.privateKey}`)
     const data = await contract.methods.transfer(toAddress, pebToken).encodeABI();
     const ops = {
         type: 'FEE_DELEGATED_SMART_CONTRACT_EXECUTION',
-        from: sender.address,
+        from: owner.address,
         to: contract.options.address,
         data,
         gas: '300000',
         value: 0,
     };
-    console.log(`3 sender.privateKey ${sender.privateKey}`)
-    const { rawTransaction: senderRawTransaction } = await cav.klay.accounts.signTransaction(ops, sender.privateKey);
+
+    const { rawTransaction: senderRawTransaction } = await cav.klay.accounts.signTransaction(ops, owner.privateKey);
     const result = await cav.klay.sendTransaction({
       senderRawTransaction,
       feePayer: feePayer.address,
     });
-    console.log(`4 sender.privateKey ${sender.privateKey}`)
-    console.log(`transactionHash ${result.transactionHash}`)
       
     await prisma.createGemTransaction({ 
       senderUserRowId: senderInfo.userRowId, 
