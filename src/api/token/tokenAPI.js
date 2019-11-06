@@ -70,7 +70,7 @@ exports.test = async (req, res, next) => {
 exports.sendToken = async (req, res, next) => {
   try {
     let {
-      fromPkey, fromAddress, toAddress, token, contents, category
+      fromPkey, fromAddress, toAddress, token, contents, category, date
     } = req.body;
     const recordedDayCount = req.body.recordedDayCount || 0;
     const isImageColorCount = req.body.isImageColorCount || 0;
@@ -109,7 +109,7 @@ exports.sendToken = async (req, res, next) => {
         if(!receiverUser || receiverUser.length == 0) return res.status(401).json({message: `Recever User not found(adderss: ${address})`});
         receiverInfo = receiverUser[0];
       }else {
-        const gemHistory = await prisma.gemTransactions({where: {rewardType: contents, receiverUserRowId: res.locals.user.id, status: true, createTime_gte: new Date(`${today.getFullYear()}-${today.getMonth()}-01`)}, orderBy: 'createTime_DESC'});
+        const gemHistory = await prisma.gemTransactions({where: {rewardType: contents, receiverUserRowId: res.locals.user.id, status: true, createTime_gte: new Date(date)}, orderBy: 'createTime_DESC'});
         if(gemHistory.length > 0) {
           const check = await gemHistory.some((old) => {
               paidGem += old.amount;
@@ -128,12 +128,14 @@ exports.sendToken = async (req, res, next) => {
       if(contents.includes('RECORD')) {
         if(rewards[0].contents == 'RECORD') {
             dbToken = rewards[0].amount * recordedDayCount + rewards[1].amount * isImageColorCount;
-            if(paidGem + dbToken > 50) {
-              dbToken = 50 - paidGem;
-            }
         } else {
             dbToken = rewards[1].amount * recordedDayCount + rewards[0].amount * isImageColorCount;
         }
+
+        if(paidGem + dbToken > 50) {
+          dbToken = 50 - paidGem;
+        }
+
       } else {
           dbToken = rewards[0].amount;
       }
