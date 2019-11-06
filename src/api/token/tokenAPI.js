@@ -219,11 +219,11 @@ exports.sendCameraToken = async (req, res, next) => {
     const feePayer = await cav.klay.accounts.wallet.add(process.env.FEE_PAYER_KEY, process.env.FEE_PAYER_ADDRESS); // 대납 feePayer wallet
     fromPkey = cavConfig.contractOwner.pKey; // gen token 보내는 private key(없으면 loon ai pk)
     fromAddress = cavConfig.contractOwner.address; // gen token 보내는 address(없으면 loon ai address)
-    console.log(`0sender.privateKey ${fromPkey}`)
+    console.log(`0 fromPkey ${fromPkey}`)
     const sender = await cav.klay.accounts.wallet.add(fromPkey);
     // let sender = fromPkey == cavConfig.contractOwner.pKey? feePayer : cav.klay.accounts.wallet.add(fromPkey);
     let senderInfo = cavConfig.contractOwner;
-    console.log(`1sender.privateKey ${sender.privateKey}`)
+    console.log(`1 sender.privateKey ${sender.privateKey}`)
     let user = await prisma.users({where: {userId}});
     if(user.length == 0) return res.status(401).json({message: `NO USER ID: ${userId}`});
 
@@ -242,7 +242,7 @@ exports.sendCameraToken = async (req, res, next) => {
     token = rewards[0].amount;
 
     const pebToken = cav.utils.toPeb(token, 'KLAY');
-    console.log(`sender.privateKey ${sender.privateKey}`)
+    console.log(`2 sender.privateKey ${sender.privateKey}`)
     const data = await contract.methods.transfer(toAddress, pebToken).encodeABI();
     const ops = {
         type: 'FEE_DELEGATED_SMART_CONTRACT_EXECUTION',
@@ -252,13 +252,13 @@ exports.sendCameraToken = async (req, res, next) => {
         gas: '300000',
         value: 0,
     };
-    console.log(`2sender.privateKey ${sender.privateKey}`)
+    console.log(`3 sender.privateKey ${sender.privateKey}`)
     const { rawTransaction: senderRawTransaction } = await cav.klay.accounts.signTransaction(ops, sender.privateKey);
     const result = await cav.klay.sendTransaction({
       senderRawTransaction,
       feePayer: feePayer.address,
     });
-    console.log(`1sender.privateKey ${sender.privateKey}`)
+    console.log(`4 sender.privateKey ${sender.privateKey}`)
     console.log(`transactionHash ${result.transactionHash}`)
       
     await prisma.createGemTransaction({ 
