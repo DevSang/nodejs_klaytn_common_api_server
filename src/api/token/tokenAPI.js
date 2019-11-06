@@ -109,8 +109,6 @@ exports.sendToken = async (req, res, next) => {
         if(!receiverUser || receiverUser.length == 0) return res.status(401).json({message: `Recever User not found(adderss: ${address})`});
         receiverInfo = receiverUser[0];
       }else {
-        console.log(`date ${date}`)
-        console.log(` new Date(date) ${new Date(date)}`)
         const gemHistory = await prisma.gemTransactions({where: {rewardType: contents, receiverUserRowId: res.locals.user.id, status: true, createTime_gte: new Date(date)}, orderBy: 'createTime_DESC'});
         if(gemHistory.length > 0) {
           const check = await gemHistory.some((old) => {
@@ -232,7 +230,7 @@ exports.sendCameraToken = async (req, res, next) => {
     receiverInfo = receiverInfo[0];
     
     const today = new Date();
-    const gemHistory = await prisma.gemTransactions({where: {rewardType: contents, receiverUserRowId: receiverInfo.userRowId, status: true, createTime_gte: new Date(`${today.getFullYear()}-${today.getMonth()}-01`)}, orderBy: 'createTime_DESC'});
+    const gemHistory = await prisma.gemTransactions({where: {rewardType: contents, receiverUserRowId: receiverInfo.userRowId, status: true, createTime_gte: new Date(`${today.getFullYear()}-${today.getMonth() +1 }-01`)}, orderBy: 'createTime_DESC'});
     if(gemHistory.length >= 5) {
       console.log('[ERROR]: ALREADY PAID')
       return res.status(401).json({message: 'ALREADY PAID'});
