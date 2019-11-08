@@ -125,7 +125,6 @@ exports.sendToken = async (req, res, next) => {
 
       let feeQuery = contents.includes('RECORD') ? {contents_in: ['RECORD', 'CAMERA RECORD']} : {contents};
       rewards = await prisma.gemRewardTypes({where: feeQuery, orderBy: 'contents_DESC'});
-      console.log(`recordedDayCount : ${recordedDayCount} isImageColorCount: ${isImageColorCount} rewards: ${rewards[0].amount} rewards: ${rewards[1].amount}`)
       if(contents.includes('RECORD')) {
         if(rewards[0].contents == 'RECORD') {
             dbToken = rewards[0].amount * recordedDayCount + rewards[1].amount * isImageColorCount;
