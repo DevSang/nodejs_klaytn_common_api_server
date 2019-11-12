@@ -219,7 +219,6 @@ exports.sendAdminToken = async (req, res, next) => {
     // const feePayer = await cav.klay.accounts.wallet.add(process.env.FEE_PAYER_KEY, process.env.FEE_PAYER_ADDRESS); // 대납 feePayer wallet
     fromPkey = cavConfig.contractOwner.pKey; // gen token 보내는 private key(없으면 loon ai pk)
     fromAddress = cavConfig.contractOwner.address; // gen token 보내는 address(없으면 loon ai address)
-    console.log(`0 fromPkey ${fromPkey}`)
     
     // let sender = fromPkey == cavConfig.contractOwner.pKey? feePayer : cav.klay.accounts.wallet.add(fromPkey);
     let senderInfo = cavConfig.contractOwner;
@@ -245,7 +244,7 @@ exports.sendAdminToken = async (req, res, next) => {
     const data = await contract.methods.transfer(toAddress, pebToken).encodeABI();
     const ops = {
         type: 'FEE_DELEGATED_SMART_CONTRACT_EXECUTION',
-        from: owner.address,
+        from: fromAddress,
         to: contract.options.address,
         data,
         gas: '300000',
