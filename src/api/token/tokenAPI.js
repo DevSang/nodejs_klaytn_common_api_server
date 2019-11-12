@@ -214,6 +214,7 @@ exports.sendAdminToken = async (req, res, next) => {
     } = req.body;
 
     const cavConfig = await getDbCavInfo();
+    console.log(`userId ${userId} toAddress ${toAddress} contents ${contents} token ${token}`)
 
     // cav.klay.accounts.wallet.clear();
     // const feePayer = await cav.klay.accounts.wallet.add(process.env.FEE_PAYER_KEY, process.env.FEE_PAYER_ADDRESS); // 대납 feePayer wallet
