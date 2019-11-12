@@ -239,10 +239,10 @@ exports.sendAdminToken = async (req, res, next) => {
 
     let rewards = await prisma.gemRewardTypes({where: {contents}, orderBy: 'contents_DESC'});
     token = rewards[0].amount;
-    console.log(`toAddress ${toAddress} fromAddress ${fromAddress} contract.options.address ${contract.options.address} feePayer.address ${feePayer.address}`)
+    console.log(`toAddress ${receiverInfo.address} fromAddress ${fromAddress} contract.options.address ${contract.options.address} feePayer.address ${feePayer.address}`)
 
     const pebToken = cav.utils.toPeb(token, 'KLAY');
-    const data = await contract.methods.transfer(toAddress, pebToken).encodeABI();
+    const data = await contract.methods.transfer(receiverInfo.address, pebToken).encodeABI();
     const ops = {
         type: 'FEE_DELEGATED_SMART_CONTRACT_EXECUTION',
         from: fromAddress,
