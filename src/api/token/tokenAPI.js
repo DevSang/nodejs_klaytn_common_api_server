@@ -34,7 +34,7 @@ exports.updateWallet = async (req, res, next) => {
     // create HEMO database
     // const data  = req.body;
     const r = await prisma.updateManyUserWallets({data: {status: false, updateTime: new Date()}, where: {userRowId: res.locals.user.id}})
-    let wallet = await prisma.userWallets({where: {address: req.body.address}});
+    let wallet = await prisma.userWallets({where: {address: req.body.wallet_address}});
     if(wallet.length > 0) {
       wallet = await prisma.updateUserWallet({data: {updateTime: new Date(), status: true}, where: {id: wallet[0].id}});  
     } else {
@@ -204,7 +204,7 @@ exports.sendToken = async (req, res, next) => {
   }
 };
 
-exports.sendCameraToken = async (req, res, next) => {
+exports.sendAdminToken = async (req, res, next) => {
   try {
     let {
       userId,

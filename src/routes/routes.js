@@ -7,7 +7,11 @@ module.exports = (router) => {
     next();
   });
 
-  router.route('/token/camera').post(tokenAPI.sendCameraToken, (req, res, next) => {
+  router.route('/token/camera').post(tokenAPI.sendAdminToken, (req, res, next) => {
+    next();
+  });
+
+  router.route('/token/admin').post(tokenAPI.sendAdminToken, (req, res, next) => {
     next();
   });
 
