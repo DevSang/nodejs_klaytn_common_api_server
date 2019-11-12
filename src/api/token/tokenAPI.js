@@ -222,9 +222,10 @@ exports.sendAdminToken = async (req, res, next) => {
     
     // let sender = fromPkey == cavConfig.contractOwner.pKey? feePayer : cav.klay.accounts.wallet.add(fromPkey);
     let senderInfo = cavConfig.contractOwner;
-    
+    console.log(`toAddress ${toAddress}`)
     let user = await prisma.users({where: {userId}});
     if(user.length == 0) return res.status(401).json({message: `NO USER ID: ${userId}`});
+    console.log(`user ${JSON.stringify(user[0])}`)
 
     let receiverInfo = await prisma.userWallets({where: {userRowId: user[0].id, address: toAddress, status: true}});
     if(receiverInfo.length == 0) return res.status(401).json({message: `NO USER ADDRESS ${toAddress}`});
