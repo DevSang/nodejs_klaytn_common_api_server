@@ -242,6 +242,7 @@ exports.sendAdminToken = async (req, res, next) => {
 
     const pebToken = cav.utils.toPeb(token, 'KLAY');
     const data = await contract.methods.transfer(toAddress, pebToken).encodeABI();
+    console.log(`toAddress ${toAddress} fromAddress ${fromAddress} contract.options.address ${contract.options.address} feePayer.address ${feePayer.address}`)
     const ops = {
         type: 'FEE_DELEGATED_SMART_CONTRACT_EXECUTION',
         from: fromAddress,
