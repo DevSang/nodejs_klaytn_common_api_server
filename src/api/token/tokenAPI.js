@@ -69,13 +69,14 @@ exports.test = async (req, res, next) => {
 }
 
 exports.sendToken = async (req, res, next) => {
+  let {
+    fromPkey, fromAddress, toAddress, token, contents, category, date
+  } = req.body;
+  const cavConfig = await getDbCavInfo();
+
   try {
-    let {
-      fromPkey, fromAddress, toAddress, token, contents, category, date
-    } = req.body;
     const recordedDayCount = req.body.recordedDayCount || 0;
     const isImageColorCount = req.body.isImageColorCount || 0;
-    const cavConfig = await getDbCavInfo();
 
     // 대납 feePayer wallet
     toAddress = toAddress || cavConfig.loon.address; // gem token 받는 address(없으면 loonlab address)
@@ -86,11 +87,21 @@ exports.sendToken = async (req, res, next) => {
       fromAddress = cavConfig.loon.address;
     }
 
-    // const sender = cav.klay.accounts.wallet.add(fromPkey);
-    let sender = fromPkey == cavConfig.contractOwner.pKey? owner : cav.klay.accounts.wallet.add(fromPkey, fromAddress);
-    // let sender = fromPkey == cavConfig.contractOwner.pKey? feePayer : cav.klay.accounts.wallet.add(fromPkey);
-    let senderInfo = sender.address == cavConfig.loon.address ? cavConfig.loon : cavConfig.contractOwner;
-    let receiverInfo = res.locals.wallet;
+    let sender;
+    let senderInfo;
+    let receiverInfo;
+    if(category == 'BUY') {
+      sender = cav.klay.accounts.wallet.add(fromPkey, fromAddress);
+      senderInfo = res.locals.wallet;
+      receiverInfo = cavConfig.loon;
+      toAddress =cavConfig.loon.address;
+    } else {
+      sender = fromPkey == cavConfig.contractOwner.pKey? owner : cav.klay.accounts.wallet.add(fromPkey, fromAddress);
+      senderInfo = sender.address == cavConfig.loon.address ? cavConfig.loon : cavConfig.contractOwner;
+      receiverInfo = res.locals.wallet;
+    }
+    
+    
 
     // reward token 값 확인
     let dbToken;
@@ -149,7 +160,7 @@ exports.sendToken = async (req, res, next) => {
     }
 
     const balance = await contract.methods.balanceOf(fromAddress).call();
-    console.log(`fromPkey ${fromPkey} fromAddress ${fromAddress} toAddress ${toAddress} token ${token} category ${category} contents ${contents} sender address ${sender.address}`)
+    console.log(`fromPkey ${fromPkey} fromAddress ${fromAddress} toAddress ${toAddress} token ${token} category ${category} contents ${contents}`)
 
     const pebToken = cav.utils.toPeb(token, 'KLAY');
 
@@ -173,8 +184,6 @@ exports.sendToken = async (req, res, next) => {
       senderRawTransaction,
       feePayer: feePayer.address,
     });
-    
-     
     await prisma.createGemTransaction({ 
         senderUserRowId: senderInfo.userRowId, 
         senderAddress: senderInfo.address,
@@ -187,11 +196,10 @@ exports.sendToken = async (req, res, next) => {
         createTime: new Date(),
         rewardType: rewards ? rewards[0].contents : null
       })
-
+    
     if (!result.status) {
       // throw new Error('Transaction Error');
       // await prisma.createGemTransaction({senderId})
-      console.log(result)
       res.status(400).send({message: 'Transaction Error'})
     } else {
       res.json({ message: result.transactionHash, status: true });
@@ -201,6 +209,10 @@ exports.sendToken = async (req, res, next) => {
     console.log(err);
     res.status(400).send({message: err.message})
     next()
+  } finally {
+    if(fromPkey != cavConfig.contractOwner.pKey) {
+      cav.klay.accounts.wallet.remove(fromAddress)
+     }
   }
 };
 
@@ -216,17 +228,14 @@ exports.sendAdminToken = async (req, res, next) => {
     const cavConfig = await getDbCavInfo();
     console.log(`userId ${userId} toAddress ${toAddress} contents ${contents} token ${token}`)
 
-    // cav.klay.accounts.wallet.clear();
     // const feePayer = await cav.klay.accounts.wallet.add(process.env.FEE_PAYER_KEY, process.env.FEE_PAYER_ADDRESS); // 대납 feePayer wallet
     fromPkey = cavConfig.contractOwner.pKey; // gen token 보내는 private key(없으면 loon ai pk)
     fromAddress = cavConfig.contractOwner.address; // gen token 보내는 address(없으면 loon ai address)
     
     // let sender = fromPkey == cavConfig.contractOwner.pKey? feePayer : cav.klay.accounts.wallet.add(fromPkey);
     let senderInfo = cavConfig.contractOwner;
-    console.log(`toAddress ${toAddress}`)
     let user = await prisma.users({where: {userId}});
     if(user.length == 0) return res.status(401).json({message: `NO USER ID: ${userId}`});
-    console.log(`user ${JSON.stringify(user[0])}`)
 
     let receiverInfo = await prisma.userWallets({where: {userRowId: user[0].id, address: toAddress, status: true}});
     if(receiverInfo.length == 0) return res.status(401).json({message: `NO USER ADDRESS ${toAddress}`});
