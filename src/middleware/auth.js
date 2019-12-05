@@ -46,10 +46,10 @@ module.exports = async (req, res, next) => {
         jwt.verify(parsed, certAccessPublic, async (err, decoded) => {
             //Loon data 분석 시스템 로그인 시
             if(!decoded) {
-                if(!marketToken) {
-                    res.status(400).send({message:'EXPIRED_ACCESS_TOKEN'});
-                    return
-                } else {
+                // if(!marketToken) {
+                //     res.status(400).send({message:'NO_MARKET_ACCESS_TOKEN'});
+                //     return
+                // } else {
                     const user = await prisma.users({where: {email: marketToken}})
                     if(user.length > 0) {
                         res.locals.user = user[0];
@@ -65,14 +65,14 @@ module.exports = async (req, res, next) => {
                     } else {
                         return res.status(401).send({message: `NO_USER ${decoded.email}`});
                     }
-                }
+                // }
             } else if(decoded.email === 'admin@looncup.com'){
                 console.log('>> [LOON DATA ANALYSIS SYSTEM REQUEST]', decoded.email);
                 next();
                 return;
             } else if (err) {
                 if(err.name=='TokenExpiredError') {
-                    res.status(400).send({message:'EXPIRED_ACCESS_TOKEN'});
+                    res.status(400).send({message:'EXPIRED_ACCESS_TOKEN2'});
                     return;
                 }
                 else next(err);
