@@ -46,11 +46,12 @@ module.exports = async (req, res, next) => {
         jwt.verify(parsed, certAccessPublic, async (err, decoded) => {
             //Loon data 분석 시스템 로그인 시
             if(!decoded) {
-                // if(!marketToken) {
-                //     res.status(400).send({message:'NO_MARKET_ACCESS_TOKEN'});
-                //     return
-                // } else {
-                    const user = await prisma.users({where: {email: marketToken}})
+
+                if(!marketToken) {
+                    res.status(400).send({message:'NO_MARKET_ACCESS_TOKEN'});
+                    return
+                } else {
+                    const user = await prisma.users({where: {email: decoded.email}})
                     if(user.length > 0) {
                         res.locals.user = user[0];
                         let wallet = await prisma.userWallets({where: {status: true, userRowId: user[0].id}})
@@ -65,7 +66,7 @@ module.exports = async (req, res, next) => {
                     } else {
                         return res.status(401).send({message: `NO_USER ${decoded.email}`});
                     }
-                // }
+                }
             } else if(decoded.email === 'admin@looncup.com'){
                 console.log('>> [LOON DATA ANALYSIS SYSTEM REQUEST]', decoded.email);
                 next();
@@ -80,21 +81,28 @@ module.exports = async (req, res, next) => {
             }
             console.log('>> [COMMON REQUEST] from :', decoded.email);
             const user = await prisma.users({where: {email: decoded.email}})
+            console.log("#1");
             if(user.length > 0) {
+                console.log("#1");
                 let wallet = await prisma.userWallets({where: {status: true, userRowId: user[0].id}})
+                console.log("#2");
                 if(wallet.length == 0 && (req.body.address || req.body.toAddress)) {
+                    console.log("#3");
                     wallet = await prisma.createUserWallet({userRowId: user[0].id, address: req.body.address ? req.body.address : req.body.toAddress, status: true, createTime: new Date()})
                     res.locals.wallet = wallet
                 } else {
+                    console.log("#4");
                     res.locals.wallet = wallet.length> 0 ? wallet[0] : wallet;
                 }
                 res.locals.user = user[0];
                 next();
                 return;
             } else if(req.originalUrl == '/api/user' && req.body.email == decoded.email) {
+                console.log("##2");
                 next();
                 return;
             } else {
+                console.log("##3");
                 return res.status(401).send({message: `NO_USER ${decoded.email}`});
             }
             // access token 만료 10분 전일 때-사용하지 않음
