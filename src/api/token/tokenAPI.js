@@ -170,7 +170,7 @@ exports.sendToken = async (req, res, next) => {
       next()
     }
 
-    const data = await contract.methods.transfer(toAddress, pebToken).encodeABI();
+    const data = await contract.methods.transfer(toAddress, pebToken.toFixed()).encodeABI();
     const ops = {
       type: 'FEE_DELEGATED_SMART_CONTRACT_EXECUTION',
       from: sender.address,
