@@ -33,18 +33,26 @@ exports.updateWallet = async (req, res, next) => {
   try {
     // create HEMO database
     // const data  = req.body;
+    console.log('#1');
     const r = await prisma.updateManyUserWallets({data: {status: false, updateTime: new Date()}, where: {userRowId: res.locals.user.id}})
+    console.log('#2');
     let wallet = await prisma.userWallets({where: {address: req.body.wallet_address}});
+    console.log('#3');
     if(wallet.length > 0) {
+      console.log('#4');
       wallet = await prisma.updateUserWallet({data: {updateTime: new Date(), status: true}, where: {id: wallet[0].id}});  
+      console.log('#5');
     } else {
+      console.log('#6');
       wallet = await prisma.createUserWallet({userRowId: res.locals.user.id, 
                                                   address: req.body.wallet_address,
                                                   createTime: new Date(), 
                                                   status: true}
                                                   );  
+      console.log('#7');
     }
     res.status(201).json({wallet});
+    console.log('#8');
     next();
   } catch(err) {
     console.log(`[ERROR] ${err}`)
@@ -184,9 +192,11 @@ exports.sendToken = async (req, res, next) => {
       senderRawTransaction,
       feePayer: feePayer.address,
     });
+	      let userInfo = await prisma.userWallets({where: {address: fromAddress}});
+	  console.log(JSON.stringify(res.locals.wallet));
     await prisma.createGemTransaction({ 
-        senderUserRowId: senderInfo.userRowId, 
-        senderAddress: senderInfo.address,
+        senderUserRowId: userInfo.userRowId, 
+        senderAddress: userInfo.address,
         receiverUserRowId: receiverInfo.userRowId, 
         receiverAddress: receiverInfo.address, 
         amount: token,
@@ -312,3 +322,4 @@ exports.sendAdminToken = async (req, res, next) => {
 //     return null
 //   }
 // }
+//

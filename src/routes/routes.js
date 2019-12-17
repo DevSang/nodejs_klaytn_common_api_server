@@ -3,6 +3,7 @@ const tokenAPI = require('../api/token/tokenAPI');
 module.exports = (router) => {
   // on routes that end in /bears
   // ----------------------------------------------------
+  console.log("[ROUTE]");
   router.route('/token').post(tokenAPI.sendToken, (req, res, next) => {
     next();
   });
@@ -25,7 +26,8 @@ module.exports = (router) => {
     next();
   });
 
-  router.route('/user/wallet').put(tokenAPI.updateWallet, (req, res, next) => {
+  router.route('/user/wallet').post(tokenAPI.updateWallet, (req, res, next) => {
+    console.log("Route : /user/wallet");
     next();
   });
 
